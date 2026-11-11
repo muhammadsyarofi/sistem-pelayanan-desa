@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+  <meta name="theme-color" content="#15803D" />
+  <title>SimpelDesa — Pemerintah Desa Luwung, Kec. Mundu, Kab. Cirebon (45173)</title>
+  <meta name="description" content="Lapor, layani, selesai. Bersama membangun Desa Luwung. Platform resmi pengaduan masyarakat, layanan administrasi surat online, pengumuman, dan profil sejarah Desa Luwung, Kec. Mundu, Kab. Cirebon." />
+
+  <!-- Open Graph / Pratinjau Media Sosial -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="SimpelDesa — Pemerintah Desa Luwung, Kec. Mundu, Kab. Cirebon" />
+  <meta property="og:description" content="Lapor, layani, selesai. Bersama membangun Desa Luwung (Kode Kemendagri 32.09.12.2004 • Plus Code 6HGV+VJ8)." />
+  <meta property="og:image" content="assets/luwung/hero.jpg" />
+
+  <!-- PWA Manifest & Favicon -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="assets/luwung/logo.png" />
+  <link rel="apple-touch-icon" href="assets/luwung/logo.png" />
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS (Peta Interaktif OpenStreetMap Tanpa API Key) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+  <!-- Main Design System Stylesheet (Cache-busted v4) -->
+  <link rel="stylesheet" href="styles/main.css?v=4" />
+</head>
+<body>
+  <!-- Bentuk Organik (Blob) Bergradasi di Latar -->
+  <div class="organic-blob blob-1" aria-hidden="true"></div>
+  <div class="organic-blob blob-2" aria-hidden="true"></div>
+
+  <!-- Canvas Konfeti untuk Keberhasilan Pengiriman Pengaduan -->
+  <canvas id="confetti-canvas" style="position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:280;"></canvas>
+
+  <!-- HEADER UTAMA DUA BARIS (BARIS 1: IDENTITAS & AKUN, BARIS 2: MENU NAVIGASI) -->
+  <header class="site-header" role="banner">
+    <!-- Baris 1: Brand Desa Luwung di Kiri & Tombol Aksi di Kanan (Responsif Penuh di HP & Desktop) -->
+    <div class="header-top-row">
+      <div class="header-inner">
+        <div class="brand-logo-wrap" id="brand-home-trigger" role="button" tabindex="0" aria-label="Kembali ke Beranda SimpelDesa Luwung">
+          <img src="assets/luwung/logo.png" alt="Logo Pemerintah Desa Luwung Kecamatan Mundu Kabupaten Cirebon" class="brand-logo-img" width="44" height="44" />
+          <div class="brand-titles">
+            <div class="brand-name">
+              <span class="brand-title-text">SimpelDesa</span>
+              <span class="brand-badge-desa">Desa Luwung</span>
+            </div>
+            <span class="brand-sub">Kec. Mundu • Kab. Cirebon 45173</span>
+          </div>
+        </div>
+
+        <!-- Aksi Kanan: Mode Gelap, PWA Install, Login/Dashboard, & Hamburger Menu -->
+        <div class="header-actions">
+          <button class="icon-btn" id="theme-toggle-btn" title="Ganti Mode Terang / Gelap" aria-label="Ganti Tema Warna">
+            <span id="theme-icon" class="icon-inline">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </span>
+          </button>
+
+          <button class="btn btn-gold btn-sm" id="pwa-install-btn" style="display:none;" title="Pasang Aplikasi SimpelDesa di HP/Perangkat">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M12 6v6m0 0l-2.5-2.5M12 12l2.5-2.5"/></svg>
+            <span>Pasang Aplikasi</span>
+          </button>
+
+          <div id="header-auth-slot"></div>
+
+          <button class="icon-btn mobile-menu-toggle" id="mobile-menu-btn" aria-label="Buka Menu Navigasi">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Baris 2: Bar Navigasi Khusus Menu dengan Ikon Vektor Realistis -->
+    <div class="header-nav-row">
+      <div class="header-nav-inner">
+        <nav class="main-nav" id="main-nav" aria-label="Navigasi Utama">
+          <button class="nav-btn active" data-route="beranda">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+            <span>Beranda</span>
+          </button>
+          <button class="nav-btn" data-route="sejarah">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <span>Profil & Sejarah</span>
+          </button>
+          <button class="nav-btn" data-route="pengumuman">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            <span>Pengumuman</span>
+          </button>
+          <button class="nav-btn" data-route="layanan">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+            <span>Layanan Surat</span>
+          </button>
+          <button class="nav-btn" data-route="lacak">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+            <span>Lacak Tiket</span>
+          </button>
+          <button class="nav-btn" data-route="galeri">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Galeri</span>
+          </button>
+          <button class="nav-btn" data-route="kontak">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Kontak & Lokasi</span>
+          </button>
+          <button class="nav-btn" data-route="faq">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>FAQ</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Ticker Pengumuman Berjalan di Bawah Header -->
+    <div class="announcement-ticker" role="region" aria-label="Pengumuman Berjalan Desa Luwung">
+      <div class="ticker-container">
+        <span class="ticker-label">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+          <span>Info Desa</span>
+        </span>
+        <div class="ticker-track-wrap">
+          <div class="ticker-track" id="header-ticker-track"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- RUANG UTAMA HALAMAN (DINAMIS SPA) -->
+  <main id="app-viewport" role="main" tabindex="-1"></main>
+
+  <!-- NAVIGASI BAWAH KHUSUS HANDPHONE (MOBILE BOTTOM BAR DENGAN IKON VEKTOR) -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Navigasi Cepat Handphone">
+    <button class="mb-nav-item active" data-route="beranda">
+      <span class="mb-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+      </span>
+      <span>Beranda</span>
+    </button>
+    <button class="mb-nav-item" data-route="sejarah">
+      <span class="mb-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </span>
+      <span>Sejarah</span>
+    </button>
+    <button class="mb-nav-item mb-nav-center-cta" data-action="go-lapor">
+      <span class="mb-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </span>
+      <span>Lapor</span>
+    </button>
+    <button class="mb-nav-item" data-route="layanan">
+      <span class="mb-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+      </span>
+      <span>Layanan</span>
+    </button>
+    <button class="mb-nav-item" data-route="pengumuman">
+      <span class="mb-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+      </span>
+      <span>Info Desa</span>
+    </button>
+  </nav>
+
+  <!-- FOOTER LENGKAP BIRU NAVY (#0B2A5B) -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <img src="assets/luwung/logo.png" alt="Logo Desa Luwung" width="52" height="52" style="border-radius:50%;border:2px solid #F5B731;background:#0B2A5B;flex-shrink:0;" />
+            <div>
+              <h3 style="color:#FFFFFF;font-size:1.22rem;">SimpelDesa Luwung</h3>
+              <p style="font-size:0.82rem;color:#F5B731;font-weight:600;">Pemerintah Desa Luwung • Kec. Mundu</p>
+            </div>
+          </div>
+          <p id="footer-tagline" style="font-size:0.93rem;color:#CBD5E1;margin-bottom:1rem;">
+            Lapor, layani, selesai. Bersama membangun Desa Luwung.
+          </p>
+          <div class="footer-meta-list">
+            <span class="footer-meta-row">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#F5B731" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+              <span>Kode Kemendagri: <strong style="color:#FFF;">32.09.12.2004</strong></span>
+            </span>
+            <span class="footer-meta-row">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#F5B731" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <span>Kode Pos: <strong style="color:#FFF;">45173</strong> • Elevasi: <strong style="color:#FFF;">± 9 mdpl</strong></span>
+            </span>
+            <span class="footer-meta-row">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#A3E635" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Plus Code: <strong style="color:#A3E635;">6HGV+VJ8</strong> (-6.77284, 108.59408)</span>
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Menu Publik</h4>
+          <ul class="footer-links">
+            <li><button data-route="beranda">Beranda Utama</button></li>
+            <li><button data-route="sejarah">Profil & Sejarah Desa Luwung</button></li>
+            <li><button data-route="pengumuman">Pengumuman & Kegiatan</button></li>
+            <li><button data-route="layanan">Katalog Layanan Surat</button></li>
+            <li><button data-route="lacak">Lacak Tiket Pengaduan</button></li>
+            <li><button data-route="galeri">Galeri Situs & Desa</button></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Layanan & Privasi</h4>
+          <ul class="footer-links">
+            <li><button data-action="go-lapor">Buat Pengaduan Warga</button></li>
+            <li><button data-route="layanan">Surat Keterangan Domisili (SKD)</button></li>
+            <li><button data-route="layanan">Surat Keterangan Tidak Mampu (SKTM)</button></li>
+            <li><button data-route="layanan">Surat Keterangan Usaha (SKU)</button></li>
+            <li><button data-route="faq">Tanya Jawab (FAQ)</button></li>
+            <li><button data-route="privasi">Kebijakan Privasi & Pelindungan NIK</button></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Kantor Kuwu Desa Luwung</h4>
+          <div id="footer-contact-info" style="font-size:0.9rem;color:#CBD5E1;display:flex;flex-direction:column;gap:0.6rem;"></div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid rgba(255,255,255,0.12);padding-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;font-size:0.84rem;color:#94A3B8;">
+        <span>© 2026 Pemerintah Desa Luwung, Kecamatan Mundu, Kabupaten Cirebon. Hak Cipta Dilindungi.</span>
+        <span>Web Responsif • PWA • Android (Capacitor) • Desktop (Tauri)</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL UNIVERSAL (LIGHTBOX GALERI, KARTU PENGUMUMAN WA/IG, QR CODE, DETAIL) -->
+  <div class="modal-backdrop" id="universal-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-panel" id="universal-modal-body"></div>
+  </div>
+
+  <!-- TOAST NOTIFICATION STACK -->
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <!-- Data & Main Application Logic (Cache-busted v4) -->
+  <script src="js/data.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
+</body>
+</html>

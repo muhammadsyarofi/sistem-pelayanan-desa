@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.tauri.app/config/1",
+  "build": {
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "python -m http.server 8000 --bind 127.0.0.1",
+    "devPath": "http://127.0.0.1:8000",
+    "distDir": "../"
+  },
+  "package": {
+    "productName": "SimpelDesa Luwung",
+    "version": "1.0.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "open": true
+      },
+      "notification": {
+        "all": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "Utility",
+      "identifier": "id.desa.luwung.simpeldesa",
+      "icon": [
+        "../assets/luwung/logo.png"
+      ],
+      "shortDescription": "Platform Pengaduan & Pelayanan Masyarakat Desa Luwung, Kec. Mundu, Kab. Cirebon"
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 860,
+        "resizable": true,
+        "title": "SimpelDesa — Pemerintah Desa Luwung, Kec. Mundu, Kab. Cirebon",
+        "width": 1280,
+        "minWidth": 360,
+        "minHeight": 640
+      }
+    ]
+  }
+}

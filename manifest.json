@@ -1,0 +1,42 @@
+{
+  "name": "SimpelDesa — Pemerintah Desa Luwung",
+  "short_name": "SimpelDesa Luwung",
+  "description": "Lapor, layani, selesai. Bersama membangun Desa Luwung, Kec. Mundu, Kab. Cirebon (45173).",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F0FDF4",
+  "theme_color": "#15803D",
+  "lang": "id-ID",
+  "icons": [
+    {
+      "src": "assets/luwung/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/luwung/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buat Pengaduan Warga",
+      "short_name": "Lapor",
+      "description": "Laporkan masalah jalan, kebersihan, atau fasilitas Desa Luwung",
+      "url": "./index.html#buat-pengaduan",
+      "icons": [{ "src": "assets/luwung/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Layanan Surat Desa",
+      "short_name": "Layanan",
+      "description": "Ajukan surat pengantar, domisili, SKTM, SKU, dan SKCK",
+      "url": "./index.html#layanan",
+      "icons": [{ "src": "assets/luwung/logo.png", "sizes": "192x192" }]
+    }
+  ]
+}

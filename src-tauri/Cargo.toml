@@ -1,0 +1,17 @@
+[package]
+name = "simpeldesa-luwung"
+version = "1.0.0"
+description = "Aplikasi Desktop SimpelDesa — Desa Luwung, Kec. Mundu, Kab. Cirebon"
+authors = ["Pemerintah Desa Luwung"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.6", features = ["shell-open", "notification-all"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

@@ -1,0 +1,292 @@
+// ============================================================================
+// SIMPELDESA — DESA LUWUNG, KEC. MUNDU, KAB. CIREBON (32.09.12.2004)
+// Prisma Schema (Compatible with PostgreSQL & SQLite)
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = env("DATABASE_PROVIDER") // "postgresql" in production, "sqlite" for instant local dev
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  WARGA
+  PETUGAS
+  SUPER_ADMIN
+}
+
+enum ComplaintStatus {
+  DITERIMA
+  DIVERIFIKASI
+  DIPROSES
+  SELESAI
+  DITOLAK
+}
+
+enum ComplaintPriority {
+  RENDAH
+  SEDANG
+  TINGGI
+  DARURAT
+}
+
+enum ServiceRequestStatus {
+  DIAJUKAN
+  DIVERIFIKASI
+  DISETUJUI
+  DITOLAK
+}
+
+enum AnnouncementCategory {
+  UMUM
+  KEGIATAN
+  LAYANAN
+  DARURAT
+}
+
+enum AnnouncementStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        RoleName @unique
+  description String
+  users       User[]
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id                  String              @id @default(cuid())
+  fullName            String
+  nikHash             String              @unique
+  nikMasked           String              // Contoh: 320912********04
+  nikEncrypted        String
+  phone               String
+  email               String              @unique
+  rtRwDusun           String              // Contoh: RT 002 / RW 001 - Blok Kramat
+  passwordHash        String              // Argon2id / Bcrypt hash
+  roleId              String
+  role                Role                @relation(fields: [roleId], references: [id])
+  isVerified          Boolean             @default(false)
+  isActive            Boolean             @default(true)
+  otpCode             String?
+  otpExpiresAt        DateTime?
+  failedLoginAttempts Int                 @default(0)
+  lockedUntil         DateTime?
+  complaints          Complaint[]         @relation("CitizenComplaints")
+  assignedComplaints  Complaint[]         @relation("OfficerComplaints")
+  complaintUpdates    ComplaintUpdate[]
+  complaintComments   ComplaintComment[]
+  serviceRequests     ServiceRequest[]    @relation("CitizenServiceRequests")
+  processedRequests   ServiceRequest[]    @relation("OfficerServiceRequests")
+  announcements       Announcement[]
+  notifications       Notification[]
+  auditLogs           AuditLog[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+model ComplaintCategory {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  slug        String      @unique
+  icon        String
+  description String?
+  slaDays     Int         @default(3)
+  complaints  Complaint[]
+  createdAt   DateTime    @default(now())
+}
+
+model Complaint {
+  id                String                @id @default(cuid())
+  ticketCode        String                @unique // Contoh: LPR-2026-000101
+  userId            String
+  user              User                  @relation("CitizenComplaints", fields: [userId], references: [id])
+  categoryId        String
+  category          ComplaintCategory     @relation(fields: [categoryId], references: [id])
+  title             String
+  description       String
+  latitude          Float                 @default(-6.77284)
+  longitude         Float                 @default(108.59408)
+  addressText       String
+  rtRwDusun         String
+  isAnonymousPublic Boolean               @default(false)
+  priority          ComplaintPriority     @default(SEDANG)
+  status            ComplaintStatus       @default(DITERIMA)
+  assignedOfficerId String?
+  assignedOfficer   User?                 @relation("OfficerComplaints", fields: [assignedOfficerId], references: [id])
+  internalNotes     String?               // Hanya terlihat oleh Admin/Petugas
+  rating            Int?                  // 1-5 bintang setelah SELESAI
+  ratingComment     String?
+  attachments       ComplaintAttachment[]
+  updates           ComplaintUpdate[]
+  comments          ComplaintComment[]
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  resolvedAt        DateTime?
+}
+
+model ComplaintAttachment {
+  id                String    @id @default(cuid())
+  complaintId       String
+  complaint         Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  fileUrl           String
+  fileType          String    @default("IMAGE") // IMAGE | VIDEO
+  fileName          String?
+  fileSize          Int?
+  isResolutionProof Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+}
+
+model ComplaintUpdate {
+  id            String          @id @default(cuid())
+  complaintId   String
+  complaint     Complaint       @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  status        ComplaintStatus
+  note          String
+  photoProofUrl String?
+  updatedById   String
+  updatedBy     User            @relation(fields: [updatedById], references: [id])
+  createdAt     DateTime        @default(now())
+}
+
+model ComplaintComment {
+  id              String    @id @default(cuid())
+  complaintId     String
+  complaint       Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  message         String
+  isOfficialReply Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+}
+
+model Service {
+  id               String           @id @default(cuid())
+  name             String
+  slug             String           @unique
+  code             String           @unique // SKD, SKTM, SKU, SP-SKCK, SP-UMUM
+  icon             String
+  description      String
+  requirementsJson String           // JSON array of strings
+  flowStepsJson    String           // JSON array of strings
+  estimatedTime    String           // Contoh: "1 Hari Kerja"
+  isActive         Boolean          @default(true)
+  requests         ServiceRequest[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model ServiceRequest {
+  id              String               @id @default(cuid())
+  requestNumber   String               @unique // Contoh: SRV-2026-00042
+  serviceId       String
+  service         Service              @relation(fields: [serviceId], references: [id])
+  userId          String
+  user            User                 @relation("CitizenServiceRequests", fields: [userId], references: [id])
+  purpose         String
+  formDataJson    String               // Data pelengkap permohonan
+  attachmentsJson String?
+  status          ServiceRequestStatus @default(DIAJUKAN)
+  rejectionReason String?
+  letterNumber    String?              // Contoh: 470/018/DS-LWG/XI/2026
+  generatedPdfUrl String?
+  processedById   String?
+  processedBy     User?                @relation("OfficerServiceRequests", fields: [processedById], references: [id])
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  completedAt     DateTime?
+}
+
+model Announcement {
+  id            String               @id @default(cuid())
+  title         String
+  slug          String               @unique
+  summary       String
+  contentHtml   String
+  coverImageUrl String?
+  category      AnnouncementCategory @default(UMUM)
+  isPinned      Boolean              @default(false)
+  status        AnnouncementStatus   @default(PUBLISHED)
+  publishAt     DateTime             @default(now())
+  expireAt      DateTime?
+  viewCount     Int                  @default(0)
+  shareCount    Int                  @default(0)
+  authorId      String
+  author        User                 @relation(fields: [authorId], references: [id])
+  shares        AnnouncementShare[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+model AnnouncementShare {
+  id             String       @id @default(cuid())
+  announcementId String
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  channel        String       // WHATSAPP | FACEBOOK | X | TELEGRAM | COPY_LINK | WEB_SHARE | CARD_DOWNLOAD
+  createdAt      DateTime     @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  linkUrl   String?
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model HistoryEntry {
+  id              String   @id @default(cuid())
+  sectionKey      String   @unique // SELAYANG_PANDANG | ASAL_USUL | MASA_AWAL | DAFTAR_KUWU | SITUS_BERSEJARAH | TRADISI_BUDAYA | LUWUNG_HARI_INI
+  yearOrPeriod    String
+  title           String
+  content         String
+  extraDataJson   String?  // Untuk tabel Kuwu atau kartu situs bersejarah
+  imageUrl        String?
+  isPlaceholder   Boolean  @default(false)
+  isVisiblePublic Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  updatedAt       DateTime @updatedAt
+}
+
+model GalleryItem {
+  id                   String   @id @default(cuid())
+  title                String
+  caption              String
+  imageUrl             String
+  thumbUrl             String
+  category             String   @default("Situs & Desa")
+  isPlaceholderCaption Boolean  @default(false)
+  sortOrder            Int      @default(0)
+  createdAt            DateTime @default(now())
+}
+
+model SiteSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  label       String
+  isPlaceholder Boolean @default(false)
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorId      String
+  actor        User     @relation(fields: [actorId], references: [id])
+  action       String   // Contoh: UPDATE_COMPLAINT_STATUS, PUBLISH_ANNOUNCEMENT, ISSUE_SERVICE_PDF
+  targetType   String   // COMPLAINT | SERVICE_REQUEST | ANNOUNCEMENT | USER | SITE_SETTING | HISTORY
+  targetId     String
+  metadataJson String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+}
