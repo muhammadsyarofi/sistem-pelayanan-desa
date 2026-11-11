@@ -2,13 +2,13 @@
  * Service Worker SimpelDesa — Desa Luwung (Network-First + Offline Fallback + Push Notification)
  */
 
-const CACHE_NAME = 'simpeldesa-luwung-v4';
+const CACHE_NAME = 'simpeldesa-luwung-v5';
 const OFFLINE_ASSETS = [
   './',
   './index.html',
-  './styles/main.css?v=4',
-  './js/data.js?v=4',
-  './js/app.js?v=4',
+  './styles/main.css?v=5',
+  './js/data.js?v=5',
+  './js/app.js?v=5',
   './manifest.json',
   './assets/luwung/logo.png',
   './assets/luwung/hero.jpg',

@@ -3,7 +3,7 @@
  * Main Application Engine (Part 1: Store, Security, Maps, Canvas Generators, PDF & Confetti)
  */
 
-const STORAGE_KEY = 'SIMPELDESA_LUWUNG_DB_V4';
+const STORAGE_KEY = 'SIMPELDESA_LUWUNG_DB_V5';
 const SESSION_KEY = 'SIMPELDESA_LUWUNG_SESSION_V1';
 
 const AppState = {
@@ -674,17 +674,29 @@ function renderHeaderTickerAndFooter() {
 
 function renderHeaderAuth() {
   const slot = document.getElementById('header-auth-slot');
-  if (!slot) return;
+  const mobileSlot = document.getElementById('mobile-nav-auth-slot');
   const u = AppState.currentUser;
   const userSvg = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  const logoutSvg = '<svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>';
+
   if (!u) {
-    slot.innerHTML = `
-      <button class="btn btn-primary btn-sm" onclick="navigateTo('masuk')">
-        ${userSvg}
-        <span class="auth-text-long">Masuk / Daftar</span>
-        <span class="auth-text-short">Masuk</span>
-      </button>
-    `;
+    if (slot) {
+      slot.innerHTML = `
+        <button class="btn btn-primary btn-sm" onclick="navigateTo('masuk')">
+          ${userSvg}
+          <span class="auth-text-long">Masuk / Daftar</span>
+          <span class="auth-text-short">Masuk</span>
+        </button>
+      `;
+    }
+    if (mobileSlot) {
+      mobileSlot.innerHTML = `
+        <button class="nav-btn nav-btn-login-mobile" onclick="navigateTo('masuk')">
+          ${userSvg}
+          <span>Masuk / Daftar Akun Warga</span>
+        </button>
+      `;
+    }
   } else {
     const isAdmin = u.role === 'SUPER_ADMIN' || u.role === 'PETUGAS';
     const dashRoute = isAdmin ? 'admin' : 'warga';
@@ -692,17 +704,31 @@ function renderHeaderAuth() {
     const dashShort = isAdmin ? 'Admin' : 'Warga';
     const unreadCount = (AppState.db.notifications || []).filter((n) => !n.isRead).length;
 
-    slot.innerHTML = `
-      <div style="display:flex;align-items:center;gap:0.4rem;">
-        <button class="btn btn-primary btn-sm" onclick="navigateTo('${dashRoute}')">
+    if (slot) {
+      slot.innerHTML = `
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+          <button class="btn btn-primary btn-sm" onclick="navigateTo('${dashRoute}')">
+            ${userSvg}
+            <span class="auth-text-long">${dashLong}</span>
+            <span class="auth-text-short">${dashShort}</span>
+            ${unreadCount > 0 ? `<span style="background:#F5B731;color:#0B2A5B;border-radius:99px;padding:0 6px;font-size:0.7rem;">${unreadCount}</span>` : ''}
+          </button>
+          <button class="btn btn-outline btn-sm logout-btn-header" onclick="handleLogout()" title="Keluar dari Akun">Keluar</button>
+        </div>
+      `;
+    }
+    if (mobileSlot) {
+      mobileSlot.innerHTML = `
+        <button class="nav-btn" onclick="navigateTo('${dashRoute}')" style="font-weight:700;color:var(--green-700);">
           ${userSvg}
-          <span class="auth-text-long">${dashLong}</span>
-          <span class="auth-text-short">${dashShort}</span>
-          ${unreadCount > 0 ? `<span style="background:#F5B731;color:#0B2A5B;border-radius:99px;padding:0 6px;font-size:0.7rem;">${unreadCount}</span>` : ''}
+          <span>Buka ${dashLong} (${escapeHtml(u.fullName.split(' ')[0])})</span>
         </button>
-        <button class="btn btn-outline btn-sm logout-btn-header" onclick="handleLogout()" title="Keluar dari Akun">Keluar</button>
-      </div>
-    `;
+        <button class="nav-btn nav-btn-logout" onclick="handleLogout()">
+          ${logoutSvg}
+          <span>Keluar dari Akun (Logout)</span>
+        </button>
+      `;
+    }
   }
 }
 
@@ -1662,17 +1688,17 @@ function renderMasuk() {
                 AKUN DEMO PENGUJIAN (1-KLIK MASUK):
               </span>
               <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;">
-                ⚠️ <em>Catatan Keamanan: Akun demo tidak memakai NIK nyata. Wajib ganti kata sandi sebelum dipakai sungguhan di produksi.</em>
+                <em>Catatan Keamanan: Akun demo tidak memakai NIK nyata. Wajib ganti kata sandi sebelum dipakai sungguhan di produksi.</em>
               </p>
               <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="quickDemoLogin('WARGA')">
-                  👨‍Masuk sebagai <strong>Warga Demo</strong> (Ahmad Fauzi)
+                <button type="button" class="btn btn-outline btn-sm btn-marquee-wrap" onclick="quickDemoLogin('WARGA')">
+                  <span class="btn-marquee-track">Masuk sebagai <strong>Warga Demo</strong> (Ahmad Fauzi)</span>
                 </button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="quickDemoLogin('PETUGAS')">
-                  Masuk sebagai <strong>Petugas Desa</strong> (Kaur Pelayanan)
+                <button type="button" class="btn btn-outline btn-sm btn-marquee-wrap" onclick="quickDemoLogin('PETUGAS')">
+                  <span class="btn-marquee-track">Masuk sebagai <strong>Petugas Desa</strong> (Kaur Pelayanan &amp; Trantib)</span>
                 </button>
-                <button type="button" class="btn btn-gold btn-sm" onclick="quickDemoLogin('SUPER_ADMIN')">
-                  Masuk sebagai <strong>Super Admin</strong> (${escapeHtml(AppState.db.settings.namaKepalaDesa)})
+                <button type="button" class="btn btn-gold btn-sm btn-marquee-wrap" onclick="quickDemoLogin('SUPER_ADMIN')">
+                  <span class="btn-marquee-track">Masuk sebagai <strong>Super Admin</strong> (${escapeHtml(AppState.db.settings.namaKepalaDesa)})</span>
                 </button>
               </div>
             </div>
@@ -1798,6 +1824,60 @@ function handleLoginSubmit() {
   else navigateTo('warga');
 }
 
+async function sendRealOtpEmail(userObj, otpCode) {
+  const statusEl = document.getElementById('otp-email-status-box');
+  if (statusEl) {
+    statusEl.style.background = 'var(--green-100)';
+    statusEl.style.color = 'var(--brand-navy)';
+    statusEl.innerHTML = 'Sedang mengirim kode OTP ke email <strong>' + escapeHtml(userObj.email) + '</strong>...';
+  }
+
+  try {
+    const response = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(userObj.email), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        _subject: 'Kode OTP Verifikasi SimpelDesa Luwung: ' + otpCode,
+        _template: 'table',
+        _captcha: 'false',
+        Kode_OTP_6_Digit: otpCode,
+        Nama_Lengkap_Warga: userObj.fullName,
+        NIK_Tersamar: userObj.nikMasked,
+        Domisili_Desa_Luwung: userObj.rtRwDusun,
+        Informasi: 'Masukkan 6 digit Kode OTP (' + otpCode + ') pada halaman verifikasi SimpelDesa Pemerintah Desa Luwung, Kec. Mundu, Kab. Cirebon.'
+      })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (statusEl) {
+      if (data && data.message && String(data.message).toLowerCase().includes('activate')) {
+        statusEl.style.background = '#FEF9C3';
+        statusEl.style.color = '#854D0E';
+        statusEl.innerHTML =
+          '<strong>Langkah Aktivasi Email Pertama Kali:</strong><br/>' +
+          'Kami telah mengirim email ke <strong>' + escapeHtml(userObj.email) + '</strong>. ' +
+          'Buka Kotak Masuk / Spam email Anda, klik tombol <strong>"Activate Form"</strong> dari FormSubmit, lalu klik tombol <strong>"Kirim Ulang OTP ke Email"</strong> di bawah agar kode OTP masuk ke email Anda.';
+      } else {
+        statusEl.style.background = '#DCFCE7';
+        statusEl.style.color = '#166534';
+        statusEl.innerHTML =
+          '✓ <strong>Email Terkirim!</strong> Kode OTP 6 digit telah dikirim ke <strong>' + escapeHtml(userObj.email) + '</strong>. Silakan periksa Kotak Masuk (Inbox) atau folder Spam/Promosi email Anda.<br/>' +
+          '<small>(Jika email ini baru pertama kali digunakan, klik "Activate" pada email FormSubmit di kotak masuk Anda lalu tekan Kirim Ulang OTP).</small>';
+      }
+    }
+    showToast('Kode OTP telah dikirim ke email ' + userObj.email, 'success');
+  } catch (err) {
+    if (statusEl) {
+      statusEl.style.background = '#FEF9C3';
+      statusEl.style.color = '#854D0E';
+      statusEl.innerHTML =
+        'Gagal menghubungi server email otomatis karena jaringan. Anda dapat mengirim OTP lewat WhatsApp atau melihat kode cadangan di bawah.';
+    }
+  }
+}
+
 function handleRegisterSubmit() {
   const fullName = document.getElementById('reg-name')?.value.trim();
   const nik = document.getElementById('reg-nik')?.value.trim();
@@ -1812,7 +1892,9 @@ function handleRegisterSubmit() {
     return;
   }
 
-  const otpCode = '451730'; // Kode OTP simulasi kode pos Luwung
+  // Hasilkan kode OTP 6 digit acak yang unik untuk sesi pendaftaran ini
+  const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+  AppState.pendingOtpCode = otpCode;
   AppState.pendingOtpUser = {
     id: 'usr-' + Date.now(),
     fullName,
@@ -1828,31 +1910,74 @@ function handleRegisterSubmit() {
     createdAt: new Date().toISOString()
   };
 
+  const waOtpUrl = formatWaLink(
+    phone,
+    'Kode OTP Verifikasi SimpelDesa Pemerintah Desa Luwung untuk ' + fullName + ' adalah: *' + otpCode + '* (Jangan berikan kode ini kepada siapapun).'
+  );
+
   openModal(`
-    <div style="text-align:center;padding:1rem;">
-      <span class="section-eyebrow">Verifikasi Kode OTP Warga</span>
-      <h3 style="font-size:1.4rem;margin:0.5rem 0;">Masukkan Kode OTP 6 Digit</h3>
-      <p style="font-size:0.92rem;color:var(--text-muted);margin-bottom:1rem;">
-        Kode OTP telah dikirimkan ke WhatsApp <strong>${escapeHtml(phone)}</strong> dan email <strong>${escapeHtml(email)}</strong>.<br/>
-        <em>(Mode Demo: Kode OTP Anda adalah <strong>${otpCode}</strong>)</em>
-      </p>
-      <input type="text" id="otp-verify-input" class="form-input" value="${otpCode}" style="text-align:center;font-size:1.5rem;font-weight:800;letter-spacing:0.3em;max-width:240px;margin:0 auto 1rem;" maxlength="6" />
-      <div>
-        <button class="btn btn-primary" onclick="confirmOtpRegistration()">✓ Verifikasi & Aktifkan Akun Warga</button>
+    <div style="text-align:center;padding:0.5rem;">
+      <span class="section-eyebrow">Verifikasi Email &amp; OTP Warga</span>
+      <h3 style="font-size:1.35rem;margin:0.45rem 0;">Masukkan Kode OTP 6 Digit</h3>
+      <div id="otp-email-status-box" style="font-size:0.86rem;padding:0.85rem;border-radius:14px;border:1px solid var(--border-strong);margin-bottom:1rem;text-align:left;line-height:1.5;">
+        Sedang mengirim kode OTP ke email <strong>${escapeHtml(email)}</strong>...
+      </div>
+
+      <form onsubmit="event.preventDefault(); confirmOtpRegistration();">
+        <input
+          type="text"
+          id="otp-verify-input"
+          class="form-input"
+          placeholder="Ketik 6 digit OTP"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          style="text-align:center;font-size:1.45rem;font-weight:800;letter-spacing:0.25em;max-width:260px;margin:0 auto 0.85rem;"
+          maxlength="6"
+          required
+        />
+        <div style="display:flex;flex-direction:column;gap:0.55rem;max-width:340px;margin:0 auto;">
+          <button type="submit" class="btn btn-primary" style="width:100%;">
+            ✓ Verifikasi &amp; Aktifkan Akun Warga
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="sendRealOtpEmail(AppState.pendingOtpUser, AppState.pendingOtpCode)">
+            Kirim Ulang Kode OTP ke Email
+          </button>
+          <a href="${waOtpUrl}" target="_blank" rel="noopener" class="btn btn-gold btn-sm" style="text-decoration:none;">
+            Kirim Kode OTP ke WhatsApp (${escapeHtml(phone)})
+          </a>
+        </div>
+      </form>
+
+      <div style="margin-top:1rem;padding-top:0.75rem;border-top:1px dashed var(--border-card);font-size:0.8rem;color:var(--text-muted);">
+        <span>Email belum masuk atau tertahan di folder Spam?</span><br/>
+        <button type="button" onclick="const el=document.getElementById('otp-fallback-code');if(el)el.style.display='block';const inp=document.getElementById('otp-verify-input');if(inp)inp.value=AppState.pendingOtpCode;" style="background:none;border:none;color:var(--green-700);font-weight:700;text-decoration:underline;cursor:pointer;margin-top:0.25rem;">
+          Klik di sini untuk isi otomatis Kode OTP (${otpCode})
+        </button>
+        <div id="otp-fallback-code" style="display:none;margin-top:0.35rem;font-family:monospace;font-weight:800;color:var(--brand-navy);">
+          Kode OTP Anda: ${otpCode}
+        </div>
       </div>
     </div>
   `);
+
+  sendRealOtpEmail(AppState.pendingOtpUser, otpCode);
 }
 
 function confirmOtpRegistration() {
   if (!AppState.pendingOtpUser) return;
+  const typed = (document.getElementById('otp-verify-input')?.value || '').trim();
+  if (typed !== AppState.pendingOtpCode) {
+    showToast('Kode OTP yang Anda masukkan tidak sesuai. Silakan cek kembali email Anda.', 'danger');
+    return;
+  }
   AppState.db.demoUsers.push(AppState.pendingOtpUser);
   saveDatabase();
   saveSession(AppState.pendingOtpUser);
   AppState.pendingOtpUser = null;
+  AppState.pendingOtpCode = null;
   closeModal();
   launchConfetti();
-  showToast('Pendaftaran berhasil! Akun warga Anda telah terverifikasi.');
+  showToast('Pendaftaran berhasil! Akun warga Anda telah aktif dan terverifikasi.');
   navigateTo('warga');
 }
 
@@ -3118,8 +3243,35 @@ function navigateTo(route) {
     viewport.innerHTML = renderBeranda();
   }
 
+  enableOverflowMarquee();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function enableOverflowMarquee() {
+  setTimeout(() => {
+    document.querySelectorAll('.btn').forEach((btn) => {
+      if (btn.closest('.header-actions')) return;
+      let track = btn.querySelector('.btn-marquee-track');
+      if (!track && btn.scrollWidth > btn.clientWidth + 6) {
+        btn.classList.add('btn-marquee-wrap');
+        btn.innerHTML = `<span class="btn-marquee-track">${btn.innerHTML}</span>`;
+        track = btn.querySelector('.btn-marquee-track');
+      }
+      if (track) {
+        btn.classList.add('btn-marquee-wrap');
+        const diff = track.scrollWidth - btn.clientWidth;
+        if (diff > 4) {
+          btn.classList.add('is-overflowing');
+          btn.style.setProperty('--marquee-shift', `-${diff + 24}px`);
+        } else {
+          btn.classList.remove('is-overflowing');
+        }
+      }
+    });
+  }, 60);
+}
+window.addEventListener('resize', enableOverflowMarquee);
+
 
 document.addEventListener('DOMContentLoaded', () => {
   loadDatabase();
@@ -3195,12 +3347,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if ('caches' in window) {
     caches.keys().then((keys) => {
       keys.forEach((k) => {
-        if (k !== 'simpeldesa-luwung-v4') caches.delete(k);
+        if (k !== 'simpeldesa-luwung-v5') caches.delete(k);
       });
     });
   }
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    navigator.serviceWorker.register('sw.js?v=4').then((reg) => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('sw.js?v=5').then((reg) => reg.update()).catch(() => {});
   }
 
   // Tombol Install PWA
